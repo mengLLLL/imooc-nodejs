@@ -1,11 +1,15 @@
 var express = require('express');
 var path = require('path');
+var _ = require('underscore')
 var mongoose = require("mongoose")
 var serveStatic = require("serve-static")
 var bodyParser = require("body-parser")
+var Movie = require('./models/movie.js')
 var port = process.env.PORT || 8080
 var app = express()
-mongoose.connect('mongodb://localhost/imooc')
+
+mongoose.connect('mongodb://127.0.0.1:27017/mgtest')
+
 app.set('views','./views/pages')
 app.set('view engine','jade')
 app.use(serveStatic('bower_components'))
@@ -21,52 +25,23 @@ app.get('/',function(req,res){
 		if(err){
 			console.log(err)
 		}
-	})
-	res.render('index',{
-		title: 'imooc 首页',
-		movies:[{
-			title:'疯狂动物城',
-			_id:1,
-			poster:"http://img31.mtime.cn/pi/2015/10/27/095200.14690573_1000X1000.jpg"
-		},{
-			title:'疯狂动物城',
-			_id:2,
-			poster:"http://img31.mtime.cn/pi/2015/10/27/095200.14690573_1000X1000.jpg"
-		},{
-			title:'疯狂动物城',
-			_id:3,
-			poster:"http://img31.mtime.cn/pi/2015/10/27/095200.14690573_1000X1000.jpg"
-		},{
-			title:'疯狂动物城',
-			_id:4,
-			poster:"http://img31.mtime.cn/pi/2015/10/27/095200.14690573_1000X1000.jpg"
-		},{
-			title:'疯狂动物城',
-			_id:5,
-			poster:"http://img31.mtime.cn/pi/2015/10/27/095200.14690573_1000X1000.jpg"
-		},{
-			title:'疯狂动物城',
-			_id:6,
-			poster:"http://img31.mtime.cn/pi/2015/10/27/095200.14690573_1000X1000.jpg"
-		}]
+		res.render('index',{
+		title: 'nodejs 首页',
+		movies:movies
 		
+		})
 	})
+	
 })
 
 //detail page
 app.get('/movie/:id',function(req,res){
-	res.render('detail',{
+	var id = req.params.id
+	Movie.findById(id,function(err,movie){
+		res.render('detail',{
 		title:'detail 详情',
-		movies:{
-			doctor:'mengl',
-			country:'美国',
-			title:'疯狂动物城',
-			year:'2016',
-			poster:"http://img31.mtime.cn/pi/2015/10/27/095200.14690573_1000X1000.jpg",
-			language:'english',
-			flash:'http://player.youku.com/player.php/sid/XMTUyNTIwMzIwOA==/v.swf',
-			summary:'这是一座独一无二的现代动物都市，每种动物在这里都有自己的居所，比如富丽堂皇又炎热的撒哈拉广场，或者常年严寒的冰川镇。它就像一座大熔炉，动物们在这里和平共处——无论是大象还是小老鼠，只要努力，都能闯出一番名堂。不过乐观的..'
-		}
+		movies:movie
+		})
 	})
 })
 //admin page
@@ -85,18 +60,71 @@ app.get('/admin/movie',function(req,res){
 		}
 	})
 })
+//admin update movie
+app.get('/admin/update/:id',function(req,res){
+	var id = req.params.id
+	if(id){
+		Movie.findById(id,function(err,movie){
+			res.render('admin',{
+				title:'后台更新页' ,
+				movie:movie
+			})
+		})
+	}
+})
+
+
+//admin post movie
+app.post('/admin/movie/new',function(req,res){
+	console.log('req.body',req.body)
+	var id = req.body.movie._id
+	console.log('id',id)
+	var movieObj = req.body.movie
+	console.log(movieObj)
+	var _movie
+	if(id != 'undefined'){
+		Movie.findById(id,function(err,movie){
+			if(err){
+				console.log(err)
+			}
+			_movie = _.extend(movie,movieObj)
+			_movie.save(function(err,movie){
+				if(err){
+					console.log(err)
+				}
+				res.redirect('/movie/' + movie._id)
+			})
+		})
+	}
+	else{
+		_movie = new Movie({
+			doctor:movieObj.doctor,
+			title:movieObj.title,
+			country:movieObj.country,
+			language:movieObj.language,
+			year:movieObj.year,
+			poster:movieObj.poster,
+			summary:movieObj.summary,
+			flash:movieObj.flash
+		})
+		_movie.save(function(err,movie){
+			if(err){
+					console.log(err)
+				}
+				res.redirect('/movie/' + movie._id)
+		})
+	}
+})
+
 //list page
 app.get('/admin/list',function(req,res){
-	res.render('list',{
-		title:'list 首页',
-		movie:{
-			title:'疯狂动物城',
-			_id:1,
-			doctor:'mengl',
-			country:'美国',
-			year:'2016',
-			language:'english',
-			flash:'http://player.youku.com/player.php/sid/XMTUyNTIwMzIwOA==/v.swf',
+	Movie.fetch(function(err,movies){
+		if(err){
+			console.log(err)
 		}
+		res.render('list',{
+		title: 'list 首页',
+		movies:movies
+		})
 	})
 })
