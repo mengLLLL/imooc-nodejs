@@ -20,6 +20,7 @@ var MovieSchema = new mongoose.Schema({
 		}
 	}
 })
+//pre是中间件，所以要传入next,并且写next()
 
 MovieSchema.pre('save',function(next){
 	if(this.isNew){
@@ -29,7 +30,7 @@ MovieSchema.pre('save',function(next){
 	}
 	next()
 })
-
+//exec是要执行的操作，参数是一个函数
 MovieSchema.statics = {
 	fetch:function(cb){
 		return this

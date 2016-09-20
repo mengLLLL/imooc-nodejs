@@ -8,12 +8,13 @@ var Movie = require('./models/movie.js')
 var port = process.env.PORT || 8080
 var app = express()
 
-mongoose.connect('mongodb://127.0.0.1:27017/mgtest')
-
+mongoose.connect('mongodb://127.0.0.1:27017/haha')
 app.set('views','./views/pages')
 app.set('view engine','jade')
 app.use(serveStatic('bower_components'))
-app.use(bodyParser.urlencoded())
+app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({extended:true}))
+// app.use(bodyParser.urlencoded())
 // app.use(express.bodyParser())
 // app.use(express.static(path.join(__dirname,'bower_components')))
 app.listen(port)
@@ -40,7 +41,7 @@ app.get('/movie/:id',function(req,res){
 	Movie.findById(id,function(err,movie){
 		res.render('detail',{
 		title:'detail 详情',
-		movies:movie
+		movie:movie
 		})
 	})
 })

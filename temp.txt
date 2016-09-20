@@ -1,1 +1,26 @@
-temp.txt
+movies:[{
+			title:'疯狂动物城',
+			_id:1,
+			poster:"http://img31.mtime.cn/pi/2015/10/27/095200.14690573_1000X1000.jpg"
+		},{
+			title:'疯狂动物城',
+			_id:2,
+			poster:"http://img31.mtime.cn/pi/2015/10/27/095200.14690573_1000X1000.jpg"
+		},{
+			title:'疯狂动物城',
+			_id:3,
+			poster:"http://img31.mtime.cn/pi/2015/10/27/095200.14690573_1000X1000.jpg"
+		},{
+			title:'疯狂动物城',
+			_id:4,
+			poster:"http://img31.mtime.cn/pi/2015/10/27/095200.14690573_1000X1000.jpg"
+		},{
+			title:'疯狂动物城',
+			_id:5,
+			poster:"http://img31.mtime.cn/pi/2015/10/27/095200.14690573_1000X1000.jpg"
+		},{
+			title:'疯狂动物城',
+			_id:6,
+			poster:"http://img31.mtime.cn/pi/2015/10/27/095200.14690573_1000X1000.jpg"
+		}]
+
