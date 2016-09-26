@@ -5,6 +5,8 @@ var mongoose = require("mongoose")
 var serveStatic = require("serve-static")
 var bodyParser = require("body-parser")
 var Movie = require('./models/movie.js')
+var User = require('./models/user.js')
+var cookieSession = require('cookie-session')
 var port = process.env.PORT || 8080
 var app = express()
 
@@ -14,6 +16,7 @@ app.set('view engine','jade')
 app.use(serveStatic('bower_components'))
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({extended:true}))
+app.use(cookieSession())
 // app.use(bodyParser.urlencoded())
 // app.use(express.bodyParser())
 // app.use(express.static(path.join(__dirname,'bower_components')))
@@ -126,6 +129,69 @@ app.get('/admin/list',function(req,res){
 		res.render('list',{
 		title: 'list 首页',
 		movies:movies
+		})
+	})
+})
+//signup
+app.post('/user/signup',function(req,res){
+	var _user = req.body.user
+	//req.param('user')也可以拿到user
+	
+	User.findOne({name:_user.name},function(err,user){
+		if(err){
+			console.log(err)
+		}
+		if(user){
+			return res.redirect('/')
+		}else{
+			var user = new User(_user);
+			user.save(function(err,user){
+				if(err){
+					console.log(err)
+				}
+				console.log(user)
+				res.redirect('/user/list')
+			})
+		}
+	})
+	
+})
+//user list
+app.get('/user/list',function(req,res){
+	User.fetch(function(err,users){
+		if(err){
+			console.log(err)
+		}
+		res.render('userlist',{
+		title: '用户列表',
+		users:users
+		})
+	})
+})
+
+//signin
+app.post('/user/signin',function(req,res){
+	var _user = req.body.user;
+	var name = _user.name;
+	var password = _user.password;
+	User.findOne({name:name},function(err,user){
+		if(err){
+			console.log(err)
+		}
+		if(!user){
+			return res.redirect('/')
+		}
+		user.comparePassword(password,function(err,isMatch){
+			if(err){
+				console.log(err)
+			}
+			if(isMatch){
+				req.session.user = user
+				console.log('password is matched')
+				return res.redirect('/')
+			}else{
+				console.log('password is not matched')
+			}
 		})
 	})
 })
